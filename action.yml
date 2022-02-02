@@ -2,7 +2,6 @@ name: 'PHP Unit Test'
 description: 'PHP Unit Test'
 
 inputs:
-  inputs:
   mysql-version:
     description: 'MySQL Image'
     required: true
