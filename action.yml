@@ -42,27 +42,6 @@ inputs:
     required: true
     default: 'composer'
 
-  app-local-php:
-    description: 'App Local PHP Config'
-    required: true
-    default: |
-      echo "<?php
-                    return [
-                    'Datasources' => ['test' => ['username' => 'root', 'password' => '${{ inputs.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ inputs.mysql-port }}', 'database' => 'cakephp_test', 'persistent' => false, 'encoding' => 'utf8'], 'default' => ['username' => 'root', 'password' => '${{ inputs.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ inputs.mysql-port }}', 'database' => 'cakephp', 'persistent' => false, 'encoding' => 'utf8']],
-                    'EmailTransport' => ['test' => ['className' => 'ArtSkills.TestEmail']],
-                    'amoCrm' => [
-                        'clientId' => 'YOUR_CLIENT_ID',
-                        'clientSecret' => 'YOUR_CLIENT_SECRET',
-                        'pool' => 'https://example.com',
-                        'copyEmail' => 'test@test.ru'
-                    ],
-                    'moeDelo' => '666',
-                    'moeDeloIp' => '666',
-                    'moeDeloOoo' => '666',
-                    'debug' => true,
-                    'testServerName' => 'eggheads.solutions',
-                    ];" > ./config/app_local.php
-
 runs:
   using: "composite"
   steps:
@@ -92,6 +71,25 @@ runs:
         path: ${{ steps.extcache.outputs.dir }}
         key: ${{ steps.extcache.outputs.key }}
         restore-keys: ${{ steps.extcache.outputs.key }}
+
+    - name: Setup config
+      run: |
+        echo "<?php
+        return [
+        'Datasources' => ['test' => ['username' => 'root', 'password' => '${{ inputs.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ inputs.mysql-port }}', 'database' => 'cakephp_test', 'persistent' => false, 'encoding' => 'utf8'], 'default' => ['username' => 'root', 'password' => '${{ inputs.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ inputs.mysql-port }}', 'database' => 'cakephp', 'persistent' => false, 'encoding' => 'utf8']],
+        'EmailTransport' => ['test' => ['className' => 'ArtSkills.TestEmail']],
+        'amoCrm' => [
+            'clientId' => 'YOUR_CLIENT_ID',
+            'clientSecret' => 'YOUR_CLIENT_SECRET',
+            'pool' => 'https://example.com',
+            'copyEmail' => 'test@test.ru'
+        ],
+        'moeDelo' => '666',
+        'moeDeloIp' => '666',
+        'moeDeloOoo' => '666',
+        'debug' => true,
+        'testServerName' => 'eggheads.solutions',
+        ];" > ./config/app_local.php
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
