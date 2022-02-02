@@ -48,7 +48,7 @@ inputs:
     default: |
       echo "<?php
                     return [
-                    'Datasources' => ['test' => ['username' => 'root', 'password' => '${{ input.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ input.mysql-port }}', 'database' => 'cakephp_test', 'persistent' => false, 'encoding' => 'utf8'], 'default' => ['username' => 'root', 'password' => '${{ input.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ input.mysql-port }}', 'database' => 'cakephp', 'persistent' => false, 'encoding' => 'utf8']],
+                    'Datasources' => ['test' => ['username' => 'root', 'password' => '${{ inputs.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ inputs.mysql-port }}', 'database' => 'cakephp_test', 'persistent' => false, 'encoding' => 'utf8'], 'default' => ['username' => 'root', 'password' => '${{ inputs.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ inputs.mysql-port }}', 'database' => 'cakephp', 'persistent' => false, 'encoding' => 'utf8']],
                     'EmailTransport' => ['test' => ['className' => 'ArtSkills.TestEmail']],
                     'amoCrm' => [
                         'clientId' => 'YOUR_CLIENT_ID',
@@ -72,9 +72,9 @@ runs:
       with:
         host port: 3306
         container port: 3306
-        mysql version: ${{ input.mysql-version }}
-        mysql database: ${{ input.mysql-database }}
-        mysql root password: ${{ input.mysql-root-password }}
+        mysql version: ${{ inputs.mysql-version }}
+        mysql database: ${{ inputs.mysql-database }}
+        mysql root password: ${{ inputs.mysql-root-password }}
         
     - uses: zhulik/redis-action@1.1.0
 
@@ -117,7 +117,7 @@ runs:
 
     - name: Migrations
       run: |
-        mysql -h"127.0.0.1" -P"${{ input.mysql-port }}" -uroot -p${{ input.mysql-root-password }} -e "CREATE DATABASE cakephp_test;"
+        mysql -h"127.0.0.1" -P"${{ inputs.mysql-port }}" -uroot -p${{ inputs.mysql-root-password }} -e "CREATE DATABASE cakephp_test;"
         vendor/bin/phinx migrate 2> /dev/null && echo 'skip'
         vendor/bin/phinx migrate
       shell: bash
