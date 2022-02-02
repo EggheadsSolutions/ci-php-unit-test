@@ -1,0 +1,128 @@
+name: 'PHP Unit Test'
+description: 'PHP Unit Test'
+
+inputs:
+  inputs:
+  mysql-version:
+    description: 'MySQL Image'
+    required: true
+    default: '8.0'
+
+  mysql-root-password:
+    description: "MySQL ROOT Password"
+    required: true
+    default: 'root'
+
+  mysql-database:
+    description: "MySQL Database"
+    required: true
+    default: 'cakephp'
+
+  mysql-port:
+    description: "MySQL Port"
+    required: true
+    default: '3306'
+
+  php-version:
+    description: 'PHP Version'
+    required: true
+    default: '7.4'
+
+  cache-key:
+    description: 'Key for cache'
+    required: true
+    default: 'eggheads-extension-php'
+
+  extensions:
+    description: 'Extensions PHP'
+    required: true
+    default: 'bcmath, iconv, ctype, gd, mbstring, mysqli, pdo, pdo_mysql, sockets, zip, soap, intl, fileinfo, json, libxml, openssl, pcntl, posix, simplexml, zend-opcache, runkit7, igbinary, redis'
+
+  tools:
+    description: 'Tools'
+    required: true
+    default: 'composer'
+
+  app-local-php:
+    description: 'App Local PHP Config'
+    required: true
+    default: |
+      echo "<?php
+                    return [
+                    'Datasources' => ['test' => ['username' => 'root', 'password' => '${{ input.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ input.mysql-port }}', 'database' => 'cakephp_test', 'persistent' => false, 'encoding' => 'utf8'], 'default' => ['username' => 'root', 'password' => '${{ input.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ input.mysql-port }}', 'database' => 'cakephp', 'persistent' => false, 'encoding' => 'utf8']],
+                    'EmailTransport' => ['test' => ['className' => 'ArtSkills.TestEmail']],
+                    'amoCrm' => [
+                        'clientId' => 'YOUR_CLIENT_ID',
+                        'clientSecret' => 'YOUR_CLIENT_SECRET',
+                        'pool' => 'https://example.com',
+                        'copyEmail' => 'test@test.ru'
+                    ],
+                    'moeDelo' => '666',
+                    'moeDeloIp' => '666',
+                    'moeDeloOoo' => '666',
+                    'debug' => true,
+                    'testServerName' => 'eggheads.solutions',
+                    ];" > ./config/app_local.php
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v2
+
+    - uses: mirromutth/mysql-action@v1.1
+      with:
+        host port: 3306
+        container port: 3306
+        mysql version: ${{ input.mysql-version }}
+        mysql database: ${{ input.mysql-database }}
+        mysql root password: ${{ input.mysql-root-password }}
+        
+    - uses: zhulik/redis-action@1.1.0
+
+    - name: Setup cache environment
+      id: extcache
+      uses: shivammathur/cache-extensions@v1
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        key: ${{ inputs.cache-key }}
+
+    - name: Cache extensions
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.extcache.outputs.dir }}
+        key: ${{ steps.extcache.outputs.key }}
+        restore-keys: ${{ steps.extcache.outputs.key }}
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        tools: ${{ inputs.tools }}
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: |
+        composer install --no-progress --prefer-dist --optimize-autoloader
+        composer run-script post-install-cmd --no-interaction
+      shell: bash
+
+    - name: Migrations
+      run: |
+        mysql -h"127.0.0.1" -P"${{ input.mysql-port }}" -uroot -p${{ input.mysql-root-password }} -e "CREATE DATABASE cakephp_test;"
+        vendor/bin/phinx migrate 2> /dev/null && echo 'skip'
+        vendor/bin/phinx migrate
+      shell: bash
+
+    - name: PHPUnit
+      run: php -dxdebug.mode=develop vendor/bin/phpunit --colors=always -c vendor/artskills/common/src/TestSuite/phpunit.xml --exclude-group integration,clickHouse
+      shell: bash
