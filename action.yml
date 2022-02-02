@@ -90,6 +90,7 @@ runs:
         'debug' => true,
         'testServerName' => 'eggheads.solutions',
         ];" > ./config/app_local.php
+      shell: bash
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
