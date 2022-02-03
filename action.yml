@@ -7,40 +7,26 @@ inputs:
     required: true
     default: '8.0'
 
-  mysql-root-password:
-    description: "MySQL ROOT Password"
-    required: true
-    default: 'root'
-
-  mysql-database:
-    description: "MySQL Database"
-    required: true
-    default: 'cakephp'
-
-  mysql-port:
-    description: "MySQL Port"
-    required: true
-    default: '3306'
-
   php-version:
     description: 'PHP Version'
     required: true
     default: '7.4'
-
-  cache-key:
-    description: 'Key for cache'
-    required: true
-    default: 'eggheads-extension-php'
 
   extensions:
     description: 'Extensions PHP'
     required: true
     default: 'bcmath, iconv, ctype, gd, mbstring, mysqli, pdo, pdo_mysql, sockets, zip, soap, intl, fileinfo, json, libxml, openssl, pcntl, posix, simplexml, zend-opcache, runkit7, igbinary, redis'
 
-  tools:
-    description: 'Tools'
+  config-file:
+    description: 'Path to phpunit.xml'
     required: true
-    default: 'composer'
+    default: phpunit.xml.dist
+
+  additional-parameters:
+    description: 'Additional parameters for the phpunit command'
+    required: true
+    default: ''
+
 
 runs:
   using: "composite"
@@ -48,23 +34,7 @@ runs:
     - uses: actions/checkout@v2
 
     - name: Setup config
-      run: |
-        echo "<?php
-        return [
-        'Datasources' => ['test' => ['username' => 'root', 'password' => '${{ inputs.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ inputs.mysql-port }}', 'database' => 'cakephp_test', 'persistent' => false, 'encoding' => 'utf8'], 'default' => ['username' => 'root', 'password' => '${{ inputs.mysql-root-password }}', 'host' => '127.0.0.1', 'port' => '${{ inputs.mysql-port }}', 'database' => 'cakephp', 'persistent' => false, 'encoding' => 'utf8']],
-        'EmailTransport' => ['test' => ['className' => 'ArtSkills.TestEmail']],
-        'amoCrm' => [
-            'clientId' => 'YOUR_CLIENT_ID',
-            'clientSecret' => 'YOUR_CLIENT_SECRET',
-            'pool' => 'https://example.com',
-            'copyEmail' => 'test@test.ru'
-        ],
-        'moeDelo' => '666',
-        'moeDeloIp' => '666',
-        'moeDeloOoo' => '666',
-        'debug' => true,
-        'testServerName' => 'eggheads.solutions',
-        ];" > ./config/app_local.php
+      run: mv ./config/app_local_ci.php ./config/app_local.php
       shell: bash
 
     - uses: mirromutth/mysql-action@v1.1
@@ -72,8 +42,8 @@ runs:
         host port: 3306
         container port: 3306
         mysql version: ${{ inputs.mysql-version }}
-        mysql database: ${{ inputs.mysql-database }}
-        mysql root password: ${{ inputs.mysql-root-password }}
+        mysql database: cakephp
+        mysql root password: root
         
     - uses: zhulik/redis-action@1.1.0
 
@@ -83,7 +53,7 @@ runs:
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
-        key: ${{ inputs.cache-key }}
+        key: eggheads-extension-php
 
     - name: Cache extensions
       uses: actions/cache@v2
@@ -97,7 +67,7 @@ runs:
       with:
         php-version: ${{ inputs.php-version }}
         extensions: ${{ inputs.extensions }}
-        tools: ${{ inputs.tools }}
+        tools: composer
 
     - name: Cache Composer packages
       id: composer-cache
@@ -116,11 +86,11 @@ runs:
 
     - name: Migrations
       run: |
-        mysql -h"127.0.0.1" -P"${{ inputs.mysql-port }}" -uroot -p${{ inputs.mysql-root-password }} -e "CREATE DATABASE cakephp_test;"
+        mysql -h"127.0.0.1" -P"3306" -uroot -proot -e "CREATE DATABASE cakephp_test;"
         vendor/bin/phinx migrate 2> /dev/null && echo 'skip'
         vendor/bin/phinx migrate
       shell: bash
 
     - name: PHPUnit
-      run: php -dxdebug.mode=develop vendor/bin/phpunit --colors=always -c vendor/artskills/common/src/TestSuite/phpunit.xml --exclude-group integration,clickHouse
+      run: php -dxdebug.mode=develop vendor/bin/phpunit --printer mheap\\GithubActionsReporter\\Printer --colors=always -c ${{ inputs.config_file }} ${{ input.additional-parameters }}
       shell: bash
