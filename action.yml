@@ -40,6 +40,7 @@ inputs:
   app-local-php:
     description: 'Config file'
     required: false
+    default: ''
 
 
 runs:
@@ -48,12 +49,12 @@ runs:
     - uses: actions/checkout@v2
 
     - name: Setup config
-      if: ${{ inputs.public-project == 'no' }}
+      if: ${{ (inputs.public-project == 'no') && (inputs.app-local-php != 'no') }}
       run: mv ./config/app_local_ci.php ./config/app_local.php
       shell: bash
 
     - name: Setup secret config
-      if: ${{ inputs.public-project == 'yes' }}
+      if: ${{ (inputs.public-project == 'yes') && (inputs.app-local-php != 'no') }}
       run: echo "${{ inputs.app-local-php }}" > ./config/app_local.php
       shell: bash
 
@@ -115,5 +116,5 @@ runs:
       shell: bash
 
     - name: PHPUnit
-      run: php -dxdebug.mode=develop vendor/bin/phpunit --printer mheap\\GithubActionsReporter\\Printer --colors=always -c ${{ inputs.config_file }} ${{ input.additional-parameters }}
+      run: php -dxdebug.mode=develop vendor/bin/phpunit --printer mheap\\GithubActionsReporter\\Printer --colors=always -c ${{ inputs.config_file }} ${{ inputs.additional-parameters }}
       shell: bash
