@@ -124,5 +124,5 @@ runs:
       shell: bash
 
     - name: PHPUnit
-      run: php -dxdebug.mode=develop vendor/bin/phpunit --printer mheap\\GithubActionsReporter\\Printer --colors=always -c ${{ inputs.config_file }} ${{ inputs.additional-parameters }}
+      run: php -dxdebug.mode=develop vendor/bin/phpunit --printer mheap\\GithubActionsReporter\\Printer --colors=always -c ${{ inputs.config-file }} ${{ inputs.additional-parameters }}
       shell: bash
