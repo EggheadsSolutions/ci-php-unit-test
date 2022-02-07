@@ -7,6 +7,11 @@ inputs:
     required: false
     default: 'yes'
 
+  redis:
+    description: 'Install Redis'
+    required: false
+    default: 'yes'
+
   mysql-version:
     description: 'MySQL Image'
     required: false
@@ -72,8 +77,10 @@ runs:
         mysql version: ${{ inputs.mysql-version }}
         mysql database: cakephp
         mysql root password: root
-        
-    - uses: zhulik/redis-action@1.1.0
+
+    - name: Install Redis    
+      if: ${{ inputs.redis == 'yes' }}  
+      uses: zhulik/redis-action@1.1.0
 
     - name: Setup cache environment
       id: extcache
