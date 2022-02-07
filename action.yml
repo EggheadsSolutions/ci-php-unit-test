@@ -2,9 +2,14 @@ name: 'PHP Unit Test'
 description: 'PHP Unit Test'
 
 inputs:
+  mysql:
+    description: 'Install mysql'
+    required: false
+    default: 'yes'
+
   mysql-version:
     description: 'MySQL Image'
-    required: true
+    required: false
     default: '8.0'
 
   php-version:
@@ -27,6 +32,15 @@ inputs:
     required: true
     default: ''
 
+  public-project:
+    description: 'Public project'
+    required: true
+    default: 'no'
+
+  app-local-php:
+    description: 'Config file'
+    required: false
+
 
 runs:
   using: "composite"
@@ -34,10 +48,18 @@ runs:
     - uses: actions/checkout@v2
 
     - name: Setup config
+      if: ${{ inputs.public-project == 'no' }}
       run: mv ./config/app_local_ci.php ./config/app_local.php
       shell: bash
 
-    - uses: mirromutth/mysql-action@v1.1
+    - name: Setup secret config
+      if: ${{ inputs.public-project == 'yes' }}
+      run: echo "${{ inputs.app-local-php }}" > ./config/app_local.php
+      shell: bash
+
+    - name: Install mysql
+      if: ${{ inputs.mysql == 'yes' }}
+      uses: mirromutth/mysql-action@v1.1
       with:
         host port: 3306
         container port: 3306
@@ -85,6 +107,7 @@ runs:
       shell: bash
 
     - name: Migrations
+      if: ${{ inputs.mysql == 'yes' }}
       run: |
         mysql -h"127.0.0.1" -P"3306" -uroot -proot -e "CREATE DATABASE cakephp_test;"
         vendor/bin/phinx migrate 2> /dev/null && echo 'skip'
