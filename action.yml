@@ -42,6 +42,11 @@ inputs:
     required: false
     default: ''
 
+  post-install-cmd:
+    description: 'Composer Post Install CMD'
+    required: false
+    default: 'yes'
+
 
 runs:
   using: "composite"
@@ -102,9 +107,12 @@ runs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      run: |
-        composer install --no-progress --prefer-dist --optimize-autoloader
-        composer run-script post-install-cmd --no-interaction
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+      shell: bash
+
+    - name: Post Install dependencies
+      if: ${{ inputs.post-install-cmd == 'yes' }}
+      run: composer run-script post-install-cmd --no-interaction
       shell: bash
 
     - name: Migrations
