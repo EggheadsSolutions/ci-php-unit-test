@@ -25,7 +25,7 @@ inputs:
   config-file:
     description: 'Path to phpunit.xml'
     required: true
-    default: phpunit.xml.dist
+    default: 'phpunit.xml.dist'
 
   additional-parameters:
     description: 'Additional parameters for the phpunit command'
