@@ -57,6 +57,10 @@ inputs:
     required: false
     default: 'yes'
 
+  config-dir:
+    description: 'Config directory for app-local.php'
+    required: false
+    default: 'config'
 
 runs:
   using: "composite"
@@ -65,12 +69,12 @@ runs:
 
     - name: Setup config
       if: ${{ (inputs.public-project == 'no') && (inputs.app-local-php != 'no') }}
-      run: mv ./config/app_local_ci.php ./config/app_local.php
+      run: mv ./config/app_local_ci.php ./${{ inputs.config-dir }}/app_local.php
       shell: bash
 
     - name: Setup secret config
       if: ${{ (inputs.public-project == 'yes') && (inputs.app-local-php != 'no') }}
-      run: echo "${{ inputs.app-local-php }}" > ./config/app_local.php
+      run: echo "${{ inputs.app-local-php }}" > ./${{ inputs.config-dir }}/app_local.php
       shell: bash
 
     - name: Install Clickhouse
