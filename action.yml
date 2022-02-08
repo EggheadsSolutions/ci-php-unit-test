@@ -145,7 +145,7 @@ runs:
       run: |
         mysql -h"127.0.0.1" -P"3306" -uroot -proot -e "CREATE DATABASE cakephp_test;"
         ${{ inputs.migrate-command }} migrate 2> /dev/null && echo 'skip'
-        ${{ inputes.migrate-command }} migrate
+        ${{ inputs.migrate-command }} migrate
       shell: bash
 
     - name: PHPUnit
