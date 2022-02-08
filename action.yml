@@ -42,10 +42,10 @@ inputs:
     required: true
     default: ''
 
-  public-project:
-    description: 'Public project'
+  use-repository-config:
+    description: 'To use or not the config from the repository'
     required: true
-    default: 'no'
+    default: 'yes'
 
   app-local-php:
     description: 'Config file'
@@ -62,18 +62,23 @@ inputs:
     required: false
     default: 'config'
 
+  migrate-command:
+    description: 'Migrate command'
+    required: false
+    default: 'vendor/bin/phinx'
+
 runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v2
 
     - name: Setup config
-      if: ${{ (inputs.public-project == 'no') && (inputs.app-local-php != 'no') }}
+      if: ${{ (inputs.use-repository-config == 'yes') && (inputs.app-local-php != 'no') }}
       run: mv ./${{ inputs.config-dir }}/app_local_ci.php ./${{ inputs.config-dir }}/app_local.php
       shell: bash
 
     - name: Setup secret config
-      if: ${{ (inputs.public-project == 'yes') && (inputs.app-local-php != 'no') }}
+      if: ${{ (inputs.use-repository-config == 'no') && (inputs.app-local-php != 'no') }}
       run: echo "${{ inputs.app-local-php }}" > ./${{ inputs.config-dir }}/app_local.php
       shell: bash
 
@@ -139,8 +144,8 @@ runs:
       if: ${{ inputs.mysql == 'yes' }}
       run: |
         mysql -h"127.0.0.1" -P"3306" -uroot -proot -e "CREATE DATABASE cakephp_test;"
-        vendor/bin/phinx migrate 2> /dev/null && echo 'skip'
-        vendor/bin/phinx migrate
+        ${{ inputs.migrate-command }} migrate 2> /dev/null && echo 'skip'
+        ${{ inputes.migrate-command }} migrate
       shell: bash
 
     - name: PHPUnit
