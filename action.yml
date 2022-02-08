@@ -12,6 +12,11 @@ inputs:
     required: false
     default: 'yes'
 
+  clickhouse:
+    description: 'Install Clickhouse'
+    required: false
+    default: 'yes'
+
   mysql-version:
     description: 'MySQL Image'
     required: false
@@ -67,6 +72,10 @@ runs:
       if: ${{ (inputs.public-project == 'yes') && (inputs.app-local-php != 'no') }}
       run: echo "${{ inputs.app-local-php }}" > ./config/app_local.php
       shell: bash
+
+    - name: Install Clickhouse
+      if: ${{ inputs.clickhouse == 'yes' }}
+      uses: EpicStep/clickhouse-github-action@v1.0.0
 
     - name: Install mysql
       if: ${{ inputs.mysql == 'yes' }}
