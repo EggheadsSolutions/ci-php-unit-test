@@ -67,7 +67,7 @@ inputs:
     required: false
     default: 'vendor/bin/phinx'
 
-  npm-install:
+  npm-packages:
     description: 'NPM Packages'
     requierd: false
     default: ''
@@ -78,8 +78,8 @@ runs:
     - uses: actions/checkout@v2
 
     - name: Install Node Packages
-      if: ${{ inputs.npm-install != '' }}
-      run: npm install -g ${{ npm-package }}
+      if: ${{ inputs.npm-packages != '' }}
+      run: npm install -g ${{ inputs.npm-packages }}
 
     - name: Setup config
       if: ${{ (inputs.use-repository-config == 'yes') && (inputs.app-local-php != 'no') }}
