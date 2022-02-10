@@ -80,6 +80,7 @@ runs:
     - name: Install Node Packages
       if: ${{ inputs.npm-packages != '' }}
       run: npm install -g ${{ inputs.npm-packages }}
+      shell: bash
 
     - name: Setup config
       if: ${{ (inputs.use-repository-config == 'yes') && (inputs.app-local-php != 'no') }}
