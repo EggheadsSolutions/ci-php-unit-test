@@ -151,7 +151,7 @@ runs:
       shell: bash
 
     - name: Create database
-      if: ${{ inputs.migrate-command != 'no'}}
+      if: ${{ inputs.mysql == 'yes' }}
       run: mysql -h"127.0.0.1" -P"3306" -uroot -proot -e "CREATE DATABASE cakephp_test;"
       shell: bash
 
