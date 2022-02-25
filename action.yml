@@ -150,10 +150,13 @@ runs:
       run: composer run-script post-install-cmd --no-interaction
       shell: bash
 
+    - name: Create database
+      if: ${{ inputs.migrate-command != 'no'}}
+      run: mysql -h"127.0.0.1" -P"3306" -uroot -proot -e "CREATE DATABASE cakephp_test;"
+
     - name: Migrations
-      if: ${{ inputs.mysql == 'yes' }}
+      if: ${{ (inputs.mysql == 'yes') && (inputs.migrate-command != 'no') }}
       run: |
-        mysql -h"127.0.0.1" -P"3306" -uroot -proot -e "CREATE DATABASE cakephp_test;"
         ${{ inputs.migrate-command }} migrate 2> /dev/null && echo 'skip'
         ${{ inputs.migrate-command }} migrate
       shell: bash
