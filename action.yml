@@ -83,7 +83,7 @@ runs:
       shell: bash
 
     - name: Setup config
-      if: ${{ (inputs.use-repository-config == 'yes') && (inputs.app-local-php != 'no') }}
+      if: ${{ (inputs.use-repository-config == 'yes') }}
       run: mv ./${{ inputs.config-dir }}/app_local_ci.php ./${{ inputs.config-dir }}/app_local.php
       shell: bash
 
