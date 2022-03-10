@@ -182,6 +182,6 @@ runs:
       shell: bash
 
     - name: delete mysql
-      if: ${{ inputs.mysql == 'yes' }}
+      if: always()
       run: docker rm -f eggheads
       shell: bash
