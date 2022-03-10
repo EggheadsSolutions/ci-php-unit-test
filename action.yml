@@ -101,7 +101,7 @@ runs:
       uses: mirromutth/mysql-action@v1.1
       with:
         host port: 3307
-        container port: 3306
+        container port: 3307
         mysql version: ${{ inputs.mysql-version }}
         mysql database: cakephp
         mysql root password: root
