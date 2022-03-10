@@ -115,52 +115,52 @@ runs:
     #   if: ${{ inputs.redis == 'yes' }}  
     #   uses: zhulik/redis-action@1.1.0
 
-    # - name: Setup cache environment
-    #   id: extcache
-    #   uses: shivammathur/cache-extensions@v1
-    #   with:
-    #     php-version: ${{ inputs.php-version }}
-    #     extensions: ${{ inputs.extensions }}
-    #     key: eggheads-extension-php
+    - name: Setup cache environment
+      id: extcache
+      uses: shivammathur/cache-extensions@v1
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        key: eggheads-extension-php
 
-    # - name: Cache extensions
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: ${{ steps.extcache.outputs.dir }}
-    #     key: ${{ steps.extcache.outputs.key }}
-    #     restore-keys: ${{ steps.extcache.outputs.key }}
+    - name: Cache extensions
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.extcache.outputs.dir }}
+        key: ${{ steps.extcache.outputs.key }}
+        restore-keys: ${{ steps.extcache.outputs.key }}
 
-    # - name: Setup PHP
-    #   uses: shivammathur/setup-php@v2
-    #   with:
-    #     php-version: ${{ inputs.php-version }}
-    #     extensions: ${{ inputs.extensions }}
-    #     tools: composer
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+        extensions: ${{ inputs.extensions }}
+        tools: composer
 
-    # - name: Cache Composer packages
-    #   id: composer-cache
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: vendor
-    #     key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-php-
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v2
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
 
-    # - name: Install dependencies
-    #   run: composer install --no-progress --prefer-dist --optimize-autoloader
+    - name: Install dependencies
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+      shell: bash
+
+    # - name: Copy composer.phar
+    #   run: cp /home/actions-runner/composer.phar composer.phar
     #   shell: bash
 
-    - name: Copy composer.phar
-      run: cp /home/actions-runner/composer.phar composer.phar
-      shell: bash
-
-    - name: Composer install
-      run: ./composer.phar install
-      shell: bash
+    # - name: Composer install
+    #   run: ./composer.phar install
+    #   shell: bash
 
     - name: Post Install dependencies
       if: ${{ inputs.post-install-cmd == 'yes' }}
-      run: ./composer.phar run-script post-install-cmd --no-interaction
+      run: composer run-script post-install-cmd --no-interaction
       shell: bash
 
     - name: Create database
