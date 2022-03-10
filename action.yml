@@ -98,7 +98,7 @@ runs:
 
     - name: Install mysql
       if: ${{ inputs.mysql == 'yes' }}
-      run: docker run -itd --name eggheads -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3307:3306 mysql:8.0
+      run: docker run -itd --name eggheads -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3306:3306 mysql:8.0
       shell: bash
 
     # - name: Install mysql
@@ -163,10 +163,10 @@ runs:
       run: ./composer.phar run-script post-install-cmd --no-interaction
       shell: bash
 
-    # - name: Create database
-    #   if: ${{ inputs.mysql == 'yes' }}
-    #   run: mysql -h"127.0.0.1" -P"3307" -uroot -proot -e "CREATE DATABASE cakephp_test;"
-    #   shell: bash
+    - name: Create database
+      if: ${{ inputs.mysql == 'yes' }}
+      run: mysql -h"127.0.0.1" -P"3306" -uroot -proot -e "CREATE DATABASE cakephp_test;"
+      shell: bash
 
     - name: Migrations
       if: ${{ (inputs.mysql == 'yes') && (inputs.migrate-command != 'no') }}
