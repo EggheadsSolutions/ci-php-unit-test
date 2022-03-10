@@ -96,15 +96,15 @@ runs:
       if: ${{ inputs.clickhouse == 'yes' }}
       uses: EpicStep/clickhouse-github-action@v1.0.0
 
-    - name: Install mysql
-      if: ${{ inputs.mysql == 'yes' }}
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        host port: 3307
-        container port: 3306
-        mysql version: ${{ inputs.mysql-version }}
-        mysql database: cakephp
-        mysql root password: root
+    # - name: Install mysql
+    #   if: ${{ inputs.mysql == 'yes' }}
+    #   uses: mirromutth/mysql-action@v1.1
+    #   with:
+    #     host port: 3307
+    #     container port: 3306
+    #     mysql version: ${{ inputs.mysql-version }}
+    #     mysql database: cakephp
+    #     mysql root password: root
 
     # - name: Install Redis    
     #   if: ${{ inputs.redis == 'yes' }}  
