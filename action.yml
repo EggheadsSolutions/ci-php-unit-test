@@ -96,6 +96,11 @@ runs:
       if: ${{ inputs.clickhouse == 'yes' }}
       uses: EpicStep/clickhouse-github-action@v1.0.0
 
+    - name: Install mysql
+      if: ${{ inputs.mysql == 'yes' }}
+      run: docker run -itd --name eggheads -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=cakephp -p 3307:3306 mysql:8.0
+      shell: bash
+
     # - name: Install mysql
     #   if: ${{ inputs.mysql == 'yes' }}
     #   uses: mirromutth/mysql-action@v1.1
@@ -172,4 +177,9 @@ runs:
 
     - name: PHPUnit
       run: php -dxdebug.mode=develop vendor/bin/phpunit --printer mheap\\GithubActionsReporter\\Printer --colors=always -c ${{ inputs.config-file }} ${{ inputs.additional-parameters }}
+      shell: bash
+
+    - name: delete mysql
+      if: ${{ inputs.mysql == 'yes' }}
+      run: docker rm -f eggheads
       shell: bash
