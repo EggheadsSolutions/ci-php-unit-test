@@ -167,7 +167,7 @@ runs:
 
     - name: Create database postgres
       if: ${{ inputs.postgres == 'yes' }}
-      run: psql -h "127.0.0.1" -Uroot --password postgres -e "CREATE DATABASE postgres_cakephp_test;"
+      run: psql -h 127.0.0.1 -U root -W postgres -e "CREATE DATABASE postgres_cakephp_test;"
       shell: bash
 
     - name: Migrations
