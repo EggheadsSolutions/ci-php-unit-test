@@ -191,6 +191,6 @@ runs:
     - name: delete mysql
       if: always()
       run: |
-        docker rm -f eggheads
-        docker volume rm $(docker volume ls -q --filter dangling=true)
+        docker rm -f eggheads && exit_status=$? || exit_status=$?
+        docker volume rm $(docker volume ls -q --filter dangling=true) && exit_status=$? || exit_status=$?
       shell: bash
