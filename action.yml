@@ -161,6 +161,8 @@ runs:
     - name: Install dependencies
       run: composer install --no-progress --prefer-dist --optimize-autoloader
       shell: bash
+      env:
+        COMPOSER_TOKEN: ${{ inputs.GITHUB_TOKEN }}
 
     - name: Post Install dependencies
       if: ${{ inputs.post-install-cmd == 'yes' }}
